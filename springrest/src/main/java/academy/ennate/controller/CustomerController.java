@@ -3,9 +3,14 @@ package academy.ennate.controller;
 import academy.ennate.entity.Customer;
 import academy.ennate.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/ap2/customer")
@@ -20,8 +25,12 @@ public class CustomerController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "{id}")
-    public Customer findOne(@PathVariable("id") String id){
-        return service.findOne(id);
+    public Resource<Customer> findOne(@PathVariable("id") String id){
+        Customer customer = service.findOne(id);
+        Resource<Customer> resource = new Resource<>(customer);
+        ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).findAll());
+        resource.add(linkTo.withRel("all-customers"));
+        return resource;
     }
 
     @RequestMapping(method = RequestMethod.POST)

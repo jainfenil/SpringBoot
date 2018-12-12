@@ -3,11 +3,15 @@ package academy.ennate.controller;
 import academy.ennate.entity.Employee;
 import academy.ennate.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/ap1/employees")
@@ -22,8 +26,12 @@ public class EmployeeController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "{id}")
-    public Employee findOne(@PathVariable("id") String id){
-        return service.findOne(id);
+    public Resource<Employee> findOne(@PathVariable("id") String id){
+        Employee employee = service.findOne(id);
+        Resource<Employee> resource = new Resource<>(employee);
+        ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).findAll());
+        resource.add(linkTo.withRel("all-users"));
+        return resource;
     }
 
     @RequestMapping(method = RequestMethod.POST)
